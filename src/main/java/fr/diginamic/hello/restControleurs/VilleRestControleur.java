@@ -22,12 +22,12 @@ public class VilleRestControleur {
 
     @GetMapping
     public List<Ville> getVilles() {
-        return villeService.extractVilles();
+        return villeService.extractAllVilles();
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Ville> getVilleParId(@PathVariable int id) {
-        Ville ville = villeService.extractVille(id);
+        Ville ville = villeService.extractVilleParId(id);
         if (ville == null) {
             return ResponseEntity.notFound().build();
         }
@@ -36,7 +36,7 @@ public class VilleRestControleur {
 
     @GetMapping("/nom/{nom}")
     public ResponseEntity<Ville> getVilleParNom(@PathVariable String nom) {
-        Ville ville = villeService.extractVille(nom);
+        Ville ville = villeService.extractVilleParNom(nom);
         if (ville == null) {
             return ResponseEntity.notFound().build();
         }
@@ -46,16 +46,11 @@ public class VilleRestControleur {
     @PostMapping
     public ResponseEntity<String> ajouterVille(@Valid @RequestBody Ville nouvelleVille, BindingResult result) {
         if (result.hasErrors()) {
-            // Retourner un message d'erreur avec le code HTTP 400 si la validation échoue
-            String errorMessage = result.getAllErrors()
-                    .stream()
-                    .map(ObjectError::getDefaultMessage)
-                    .collect(Collectors.joining(", "));
+            String errorMessage = result.getAllErrors().stream().map(ObjectError::getDefaultMessage).collect(Collectors.joining(", "));
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Erreur de validation : " + errorMessage);
         }
 
-        // Vérifier si la ville existe déjà dans la base de données
-        if (villeService.extractVille(nouvelleVille.getNom()) != null) {
+        if (villeService.extractVilleParNom(nouvelleVille.getNom()) != null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("La ville existe déjà.");
         }
 
@@ -66,23 +61,15 @@ public class VilleRestControleur {
     @PutMapping("/{id}")
     public ResponseEntity<String> modifierVille(@PathVariable int id, @Valid @RequestBody Ville villeModifiee, BindingResult result) {
         if (result.hasErrors()) {
-            // Retourner un message d'erreur avec le code HTTP 400 si la validation échoue
-            String errorMessage = result.getAllErrors()
-                    .stream()
-                    .map(ObjectError::getDefaultMessage)
-                    .collect(Collectors.joining(", "));
+            String errorMessage = result.getAllErrors().stream().map(ObjectError::getDefaultMessage).collect(Collectors.joining(", "));
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Erreur de validation : " + errorMessage);
         }
 
-        // Vérifier si la ville existe dans la base de données
-        Ville villeExistante = villeService.extractVille(id);
+        Ville villeExistante = villeService.extractVilleParId(id);
         if (villeExistante == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ville non trouvée.");
         }
 
-        // Mettre à jour la ville
-        villeExistante.setNom(villeModifiee.getNom());
-        villeExistante.setNbHabitants(villeModifiee.getNbHabitants());
         villeService.modifierVille(id, villeExistante);
 
         return ResponseEntity.ok("Ville modifiée avec succès.");

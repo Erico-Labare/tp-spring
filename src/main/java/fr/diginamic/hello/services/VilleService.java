@@ -5,9 +5,7 @@ import fr.diginamic.hello.entities.Ville;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class VilleService {
@@ -15,21 +13,21 @@ public class VilleService {
     @Autowired
     private VilleDao villeDao;
 
-    public List<Ville> extractVilles() {
+    public List<Ville> extractAllVilles() {
         return villeDao.extractVilles();
     }
 
-    public Ville extractVille(int idVille) {
+    public Ville extractVilleParId(int idVille) {
         return villeDao.extractVilleById(idVille);
     }
 
-    public Ville extractVille(String nom) {
+    public Ville extractVilleParNom(String nom) {
         return villeDao.extractVilleByName(nom);
     }
 
     public List<Ville> insertVille(Ville ville) {
         villeDao.insertVille(ville);
-        return extractVilles();
+        return extractAllVilles();
     }
 
     public List<Ville> modifierVille(int idVille, Ville villeModifiee) {
@@ -39,11 +37,11 @@ public class VilleService {
             ville.setNbHabitants(villeModifiee.getNbHabitants());
             villeDao.updateVille(ville);
         }
-        return extractVilles();
+        return extractAllVilles();
     }
 
     public List<Ville> supprimerVille(int idVille) {
         villeDao.deleteVille(idVille);
-        return extractVilles();
+        return extractAllVilles();
     }
 }

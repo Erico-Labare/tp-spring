@@ -9,38 +9,45 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Repository
-@Transactional
 public class VilleDao {
 
     @PersistenceContext
-    private EntityManager entityManager;
+    private EntityManager em;
 
+    @Transactional
     public List<Ville> extractVilles() {
-        return entityManager.createQuery("SELECT v FROM Ville v", Ville.class).getResultList();
+        return em.createQuery("SELECT v FROM Ville v", Ville.class).getResultList();
     }
 
+    @Transactional
     public Ville extractVilleById(int idVille) {
-        return entityManager.find(Ville.class, idVille);
+        return em.find(Ville.class, idVille);
     }
 
+    @Transactional
     public Ville extractVilleByName(String nom) {
-        return entityManager.createQuery("SELECT v FROM Ville v WHERE v.nom = :nom", Ville.class)
-                .setParameter("nom", nom)
-                .getSingleResult();
+        try {
+            return em.createQuery("SELECT v FROM Ville v WHERE v.nom = :nom", Ville.class).setParameter("nom", nom).getSingleResult();
+        } catch (jakarta.persistence.NoResultException e) {
+            return null;
+        }
     }
 
+    @Transactional
     public void insertVille(Ville ville) {
-        entityManager.persist(ville);
+        em.persist(ville);
     }
 
+    @Transactional
     public Ville updateVille(Ville ville) {
-        return entityManager.merge(ville);
+        return em.merge(ville);
     }
 
+    @Transactional
     public void deleteVille(int idVille) {
         Ville ville = extractVilleById(idVille);
         if (ville != null) {
-            entityManager.remove(ville);
+            em.remove(ville);
         }
     }
 
