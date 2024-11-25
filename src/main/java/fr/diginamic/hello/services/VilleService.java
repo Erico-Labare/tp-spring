@@ -1,6 +1,8 @@
 package fr.diginamic.hello.services;
 
+import fr.diginamic.hello.dao.VilleDao;
 import fr.diginamic.hello.entities.Ville;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -10,47 +12,38 @@ import java.util.Optional;
 @Service
 public class VilleService {
 
-    private List<Ville> villes = new ArrayList<>();
+    @Autowired
+    private VilleDao villeDao;
 
-    public VilleService() {
-        villes.add(new Ville(1, "Paris", 2148000));
-        villes.add(new Ville(2, "Lyon", 513000));
-        villes.add(new Ville(3, "Marseille", 861000));
-        villes.add(new Ville(4, "Toulouse", 479000));
+    public List<Ville> extractVilles() {
+        return villeDao.extractVilles();
     }
 
-    public List<Ville> getListVille() {
-        return villes;
+    public Ville extractVille(int idVille) {
+        return villeDao.extractVilleById(idVille);
     }
 
-    public Ville getVilleById(int id) {
-        return villes.stream().filter(v -> v.getId() == id).findFirst().orElse(null);
+    public Ville extractVille(String nom) {
+        return villeDao.extractVilleByName(nom);
     }
 
-    public boolean ajouterVille(Ville ville) {
-        if (villes.stream().anyMatch(v -> v.getId() == ville.getId())) {
-            return false;
-        }
-        villes.add(ville);
-        return true;
+    public List<Ville> insertVille(Ville ville) {
+        villeDao.insertVille(ville);
+        return extractVilles();
     }
 
-    public boolean modifierVille(int id, Ville villeModifiee) {
-        Ville ville = getVilleById(id);
+    public List<Ville> modifierVille(int idVille, Ville villeModifiee) {
+        Ville ville = villeDao.extractVilleById(idVille);
         if (ville != null) {
             ville.setNom(villeModifiee.getNom());
             ville.setNbHabitants(villeModifiee.getNbHabitants());
-            return true;
+            villeDao.updateVille(ville);
         }
-        return false;
+        return extractVilles();
     }
 
-    public boolean supprimerVille(int id) {
-        Ville ville = getVilleById(id);
-        if (ville != null) {
-            villes.remove(ville);
-            return true;
-        }
-        return false;
+    public List<Ville> supprimerVille(int idVille) {
+        villeDao.deleteVille(idVille);
+        return extractVilles();
     }
 }
