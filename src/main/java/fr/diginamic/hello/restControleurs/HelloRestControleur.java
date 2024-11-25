@@ -13,10 +13,6 @@ public class HelloRestControleur {
     @Autowired
     private HelloService helloService;
 
-    public HelloRestControleur(HelloService helloService) {
-        this.helloService = helloService;
-    }
-
     @GetMapping
     public String direHello() {
         return helloService.salutations();
