@@ -4,6 +4,7 @@ import fr.diginamic.hello.dao.DepartementDao;
 import fr.diginamic.hello.dao.VilleDao;
 import fr.diginamic.hello.entities.Departement;
 import fr.diginamic.hello.entities.Ville;
+import fr.diginamic.hello.repository.DepartementRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,36 +19,37 @@ public class DepartementService {
     @Autowired
     private VilleDao villeDao;
 
+    @Autowired
+    private DepartementRepository departementRepository;
+
     public List<Departement> extractAllDepartements() {
-        return departementDao.extractDepartements();
+        return departementRepository.findAllDepartements();
     }
 
     public Departement extractDepartementParId(int id) {
-        return departementDao.extractDepartementById(id);
+        return departementRepository.findById(id).orElse(null);
     }
 
     public Departement extractDepartementParNom(String nom) {
-        return departementDao.extractDepartementByName(nom);
+        return departementRepository.findByNom(nom).orElse(null);
     }
 
     public void insertDepartement(Departement departement) {
-        departementDao.insertDepartement(departement);
-        extractAllDepartements();
+        departementRepository.save(departement);
     }
 
     public void modifierDepartement(int id, Departement departementModifie) {
-        Departement departement = departementDao.extractDepartementById(id);
+        Departement departement = departementRepository.findById(id).orElse(null);
         if (departement != null) {
             departement.setNom(departementModifie.getNom());
             departement.setVilles(departementModifie.getVilles());
-            departementDao.updateDepartement(departement);
+            departementRepository.save(departement);
         }
-        extractAllDepartements();
     }
 
     public List<Departement> supprimerDepartement(int id) {
-        departementDao.deleteDepartement(id);
-        return extractAllDepartements();
+        departementRepository.deleteById(id);
+        return departementRepository.findAll();
     }
 
     public List<Ville> getTopNVillesByPopulation(Departement departement, int n) {

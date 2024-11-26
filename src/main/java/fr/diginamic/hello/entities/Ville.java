@@ -71,7 +71,11 @@ public class Ville {
     public Departement getDepartement() {
         return departement;
     }
+
     public void setDepartement(Departement departement) {
         this.departement = departement;
     }
+
+
 }
+

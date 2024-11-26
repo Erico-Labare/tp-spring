@@ -1,7 +1,7 @@
 package fr.diginamic.hello.services;
 
-import fr.diginamic.hello.dao.VilleDao;
 import fr.diginamic.hello.entities.Ville;
+import fr.diginamic.hello.mapper.DepartementMapper;
 import fr.diginamic.hello.mapper.VilleMapper;
 import fr.diginamic.hello.repository.VilleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,15 +15,17 @@ import java.util.List;
 @Service
 public class VilleService {
 
-
     @Autowired
     private VilleRepository villeRepository;
 
     @Autowired
     private VilleMapper villeMapper;
 
+    @Autowired
+    private DepartementMapper departementMapper;
+
     public List<Ville> extractAllVilles() {
-        return (List<Ville>) villeRepository.findAll();
+        return villeRepository.findAll();
     }
 
     public Page<Ville> getAllVilles(int page, int size) {
