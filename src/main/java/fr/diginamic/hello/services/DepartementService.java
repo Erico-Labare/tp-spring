@@ -51,15 +51,10 @@ public class DepartementService {
     }
 
     public List<Ville> getTopNVillesByPopulation(Departement departement, int n) {
-        return departement.getVilles().stream()
-                .sorted((v1, v2) -> Integer.compare(v2.getNbHabitants(), v1.getNbHabitants())) // Tri par population décroissante
-                .limit(n) // Limite au top N
-                .toList();
+        return departement.getVilles().stream().sorted((v1, v2) -> Integer.compare(v2.getNbHabitants(), v1.getNbHabitants())).limit(n).toList();
     }
 
-    public List<Ville> getVillesByPopulationRange(Departement departement, int min, int max) {
-        return departement.getVilles().stream()
-                .filter(ville -> ville.getNbHabitants() >= min && ville.getNbHabitants() <= max)
-                .toList();
+    public List<Ville> getVillesParPopulation(Departement departement, int min, int max) {
+        return departement.getVilles().stream().filter(ville -> ville.getNbHabitants() >= min && ville.getNbHabitants() <= max).toList();
     }
 }

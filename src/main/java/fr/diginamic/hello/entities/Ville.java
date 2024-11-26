@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 @Entity
+@Table(name = "ville")
 public class Ville {
 
     @Id
@@ -21,7 +22,7 @@ public class Ville {
     private int nbHabitants;
 
     @ManyToOne
-    @JoinColumn(name = "departement_id")
+    @JoinColumn(name = "departement_id", nullable = false)
     private Departement departement;
 
     public Ville() {}

@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import java.util.List;
 
 @Entity
+@Table(name = "departement")
 public class Departement {
 
     @Id
@@ -13,7 +14,7 @@ public class Departement {
 
     private String nom;
 
-    @OneToMany(mappedBy = "departement", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "departement", cascade = CascadeType.ALL,orphanRemoval = true)
     private List<Ville> villes;
 
     public Departement() {}

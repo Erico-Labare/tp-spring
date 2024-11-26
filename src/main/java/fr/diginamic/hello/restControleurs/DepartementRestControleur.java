@@ -83,17 +83,13 @@ public class DepartementRestControleur {
     }
 
     @GetMapping("/{id}/villes/population")
-    public ResponseEntity<List<Ville>> getVillesByPopulationRange(
-            @PathVariable int id,
-            @RequestParam int min,
-            @RequestParam int max) {
-
+    public ResponseEntity<List<Ville>> getVillesParPopulation(@PathVariable int id, @RequestParam int min, @RequestParam int max) {
         Departement departement = departementService.extractDepartementParId(id);
         if (departement == null) {
             return ResponseEntity.notFound().build();
         }
 
-        List<Ville> villes = departementService.getVillesByPopulationRange(departement, min, max);
+        List<Ville> villes = departementService.getVillesParPopulation(departement, min, max);
         return ResponseEntity.ok(villes);
     }
 }
