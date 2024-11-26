@@ -12,6 +12,8 @@ import java.util.List;
 @Repository
 public interface VilleRepository extends JpaRepository<Ville, Integer> {
 
+    Ville findByNom(String nom);
+
     List<Ville> findByNomStartingWith(String prefix);
 
     List<Ville> findByNbHabitantsGreaterThan(int min);

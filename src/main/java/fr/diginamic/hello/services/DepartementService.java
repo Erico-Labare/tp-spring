@@ -30,19 +30,19 @@ public class DepartementService {
         return departementDao.extractDepartementByName(nom);
     }
 
-    public List<Departement> insertDepartement(Departement departement) {
+    public void insertDepartement(Departement departement) {
         departementDao.insertDepartement(departement);
-        return extractAllDepartements();
+        extractAllDepartements();
     }
 
-    public List<Departement> modifierDepartement(int id, Departement departementModifie) {
+    public void modifierDepartement(int id, Departement departementModifie) {
         Departement departement = departementDao.extractDepartementById(id);
         if (departement != null) {
             departement.setNom(departementModifie.getNom());
             departement.setVilles(departementModifie.getVilles());
             departementDao.updateDepartement(departement);
         }
-        return extractAllDepartements();
+        extractAllDepartements();
     }
 
     public List<Departement> supprimerDepartement(int id) {

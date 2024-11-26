@@ -2,6 +2,7 @@ package fr.diginamic.hello.services;
 
 import fr.diginamic.hello.dao.VilleDao;
 import fr.diginamic.hello.entities.Ville;
+import fr.diginamic.hello.mapper.VilleMapper;
 import fr.diginamic.hello.repository.VilleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -14,15 +15,15 @@ import java.util.List;
 @Service
 public class VilleService {
 
-    @Autowired
-    private VilleDao villeDao;
 
     @Autowired
     private VilleRepository villeRepository;
 
+    @Autowired
+    private VilleMapper villeMapper;
 
     public List<Ville> extractAllVilles() {
-        return villeDao.extractVilles();
+        return (List<Ville>) villeRepository.findAll();
     }
 
     public Page<Ville> getAllVilles(int page, int size) {
@@ -31,32 +32,31 @@ public class VilleService {
     }
 
     public Ville extractVilleParId(int idVille) {
-        return villeDao.extractVilleById(idVille);
+        return villeRepository.findById(idVille).orElse(null);
     }
 
     public Ville extractVilleParNom(String nom) {
-        return villeDao.extractVilleByName(nom);
+        return villeRepository.findByNom(nom);
     }
 
     public void insertVille(Ville ville) {
-        villeDao.insertVille(ville);
-        extractAllVilles();
+        villeRepository.save(ville);
     }
 
     public void modifierVille(int idVille, Ville villeModifiee) {
-        Ville villeExistante = villeDao.extractVilleById(idVille);
+        Ville villeExistante = villeRepository.findById(idVille).orElse(null);
         if (villeExistante != null) {
             villeExistante.setNom(villeModifiee.getNom());
             villeExistante.setNbHabitants(villeModifiee.getNbHabitants());
             if (villeModifiee.getDepartement() != null) {
                 villeExistante.setDepartement(villeModifiee.getDepartement());
             }
-            villeDao.updateVille(villeExistante);
+            villeRepository.save(villeExistante);
         }
     }
 
     public List<Ville> supprimerVille(int idVille) {
-        villeDao.deleteVille(idVille);
+        villeRepository.deleteById(idVille);
         return extractAllVilles();
     }
 
