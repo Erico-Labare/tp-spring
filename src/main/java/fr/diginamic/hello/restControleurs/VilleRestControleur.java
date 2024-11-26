@@ -4,6 +4,7 @@ import fr.diginamic.hello.entities.Ville;
 import fr.diginamic.hello.services.VilleService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -20,12 +21,18 @@ public class VilleRestControleur {
     @Autowired
     private VilleService villeService;
 
-    @GetMapping
+    @GetMapping("/recherche/all")
     public List<Ville> getVilles() {
         return villeService.extractAllVilles();
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/recherche")
+    public ResponseEntity<Page<Ville>> getAllVilles(@RequestParam int page, @RequestParam int size) {
+        Page<Ville> villes = villeService.getAllVilles(page, size);
+        return ResponseEntity.ok(villes);
+    }
+
+    @GetMapping("/recherche/{id}")
     public ResponseEntity<Ville> getVilleParId(@PathVariable int id) {
         Ville ville = villeService.extractVilleParId(id);
         if (ville == null) {
@@ -34,7 +41,7 @@ public class VilleRestControleur {
         return ResponseEntity.ok(ville);
     }
 
-    @GetMapping("/nom/{nom}")
+    @GetMapping("/recherche/nom/{nom}")
     public ResponseEntity<Ville> getVilleParNom(@PathVariable String nom) {
         Ville ville = villeService.extractVilleParNom(nom);
         if (ville == null) {
@@ -70,13 +77,48 @@ public class VilleRestControleur {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ville non trouvée.");
         }
 
-        villeService.modifierVille(id, villeExistante);
-
+        villeService.modifierVille(id, villeModifiee);
         return ResponseEntity.ok("Ville modifiée avec succès.");
     }
 
     @DeleteMapping("/{id}")
     public List<Ville> supprimerVille(@PathVariable int id) {
         return villeService.supprimerVille(id);
+    }
+
+    @GetMapping("/recherche/prefix")
+    public ResponseEntity<List<Ville>> rechercherParPrefixe(@RequestParam String prefix) {
+        List<Ville> villes = villeService.rechercherVillesParPrefixe(prefix);
+        return ResponseEntity.ok(villes);
+    }
+
+    @GetMapping("/recherche/population/supA")
+    public ResponseEntity<List<Ville>> populationSuperieureA(@RequestParam int min) {
+        List<Ville> villes = villeService.rechercherVillesPopulationSup1(min);
+        return ResponseEntity.ok(villes);
+    }
+
+    @GetMapping("/recherche/population/entre")
+    public ResponseEntity<List<Ville>> populationEntre(@RequestParam int min, @RequestParam int max) {
+        List<Ville> villes = villeService.rechercherVillesPopulationEntre(min, max);
+        return ResponseEntity.ok(villes);
+    }
+
+    @GetMapping("/recherche/departement/{id}/population/supA")
+    public ResponseEntity<List<Ville>> populationSupAParDepartement(@PathVariable int id, @RequestParam int min) {
+        List<Ville> villes = villeService.villesDepartementPopulationSupA(id, min);
+        return ResponseEntity.ok(villes);
+    }
+
+    @GetMapping("/recherche/departement/{id}/population/entre")
+    public ResponseEntity<List<Ville>> populationEntreParDepartement(@PathVariable int id, @RequestParam int min, @RequestParam int max) {
+        List<Ville> villes = villeService.villesDepartementPopulationEntre(id, min, max);
+        return ResponseEntity.ok(villes);
+    }
+
+    @GetMapping("/recherche/departement/{id}/top")
+    public ResponseEntity<List<Ville>> topNVilles(@PathVariable int id, @RequestParam int n) {
+        List<Ville> villes = villeService.topNVillesDepartement(id, n);
+        return ResponseEntity.ok(villes);
     }
 }

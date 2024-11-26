@@ -63,7 +63,6 @@ public class DepartementRestControleur {
         }
 
         departementService.modifierDepartement(id, departementModifie);
-
         return ResponseEntity.ok("Département modifié avec succès.");
     }
 

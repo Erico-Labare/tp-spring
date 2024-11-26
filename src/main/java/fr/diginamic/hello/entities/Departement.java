@@ -1,5 +1,6 @@
 package fr.diginamic.hello.entities;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 import java.util.List;
@@ -10,20 +11,30 @@ public class Departement {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ID")
     private int id;
 
+    @Column(name = "CODE")
+    private String code;
+
+    @Column(name = "NOM")
     private String nom;
 
-    @OneToMany(mappedBy = "departement", cascade = CascadeType.ALL,orphanRemoval = true)
+    @OneToMany(mappedBy = "departement", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private List<Ville> villes;
 
-    public Departement() {}
-
-    public Departement(String nom) {
-        this.nom = nom;
+    public Departement() {
     }
 
-       public int getId() {
+    public Departement(int id, String code, String nom, List<Ville> villes) {
+        this.id = id;
+        this.code = code;
+        this.nom = nom;
+        this.villes = villes;
+    }
+
+    public int getId() {
         return id;
     }
 
