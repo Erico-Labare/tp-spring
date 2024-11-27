@@ -7,6 +7,13 @@ public class VilleDto {
     private String codeDepartement;
     private String nomDepartement;
 
+    public VilleDto(int codeVille, int nbHabitants, String codeDepartement, String nomDepartement) {
+        this.codeVille = codeVille;
+        this.nbHabitants = nbHabitants;
+        this.codeDepartement = codeDepartement;
+        this.nomDepartement = nomDepartement;
+    }
+
 
     public int getCodeVille() {
         return codeVille;

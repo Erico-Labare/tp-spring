@@ -3,8 +3,6 @@ package fr.diginamic.hello.repository;
 import fr.diginamic.hello.entities.Ville;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -20,12 +18,9 @@ public interface VilleRepository extends JpaRepository<Ville, Integer> {
 
     List<Ville> findByNbHabitantsBetween(int min, int max);
 
-    @Query("SELECT v FROM Ville v WHERE v.departement.id = :departementId AND v.nbHabitants > :min")
-    List<Ville> findByDepartementAndPopulationGreaterThan(@Param("departementId") int departementId, @Param("min") int min);
+    List<Ville> findByDepartementIdAndNbHabitantsGreaterThan(int departementId, int min);
 
-    @Query("SELECT v FROM Ville v WHERE v.departement.id = :departementId AND v.nbHabitants BETWEEN :min AND :max")
-    List<Ville> findByDepartementAndPopulationBetween(@Param("departementId") int departementId, @Param("min") int min, @Param("max") int max);
+    List<Ville> findByDepartementIdAndNbHabitantsBetween(int departementId, int min, int max);
 
-    @Query("SELECT v FROM Ville v WHERE v.departement.id = :departementId ORDER BY v.nbHabitants DESC")
-    List<Ville> findTopNVillesByDepartement(@Param("departementId") int departementId, Pageable pageable);
+    List<Ville> findTopNByDepartementIdOrderByNbHabitantsDesc(int departementId, Pageable pageable);
 }

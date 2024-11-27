@@ -9,25 +9,25 @@ import org.springframework.stereotype.Component;
 @Component
 public class VilleMapper {
 
-    @Autowired
-    private DepartementMapper departementMapper;
-
     public VilleDto toDto(Ville ville) {
-        VilleDto villeDto = new VilleDto();
-        villeDto.setCodeVille(ville.getId());
-        villeDto.setNbHabitants(ville.getNbHabitants());
-        if (ville.getDepartement() != null) {
-            villeDto.setCodeDepartement(ville.getDepartement().getCode());
-            villeDto.setNomDepartement(ville.getDepartement().getNom());
+        if (ville == null || ville.getDepartement() == null) {
+            return null;
         }
-        return villeDto;
+        return new VilleDto(ville.getId(), ville.getNbHabitants(), ville.getDepartement() != null ? ville.getDepartement().getCode() : null, ville.getDepartement() != null ? ville.getDepartement().getNom() : null);
     }
 
-    public Ville toEntity(VilleDto villeDto, Departement departement) {
+    public Ville toEntity(VilleDto villeDto) {
         Ville ville = new Ville();
         ville.setId(villeDto.getCodeVille());
+
         ville.setNbHabitants(villeDto.getNbHabitants());
-        ville.setDepartement(departement);
+        if (villeDto.getCodeDepartement() != null) {
+            Departement departement = new Departement();
+            departement.setCode(villeDto.getCodeDepartement());
+            departement.setNom(villeDto.getNomDepartement());
+            ville.setDepartement(departement);
+        }
+
         return ville;
     }
 }

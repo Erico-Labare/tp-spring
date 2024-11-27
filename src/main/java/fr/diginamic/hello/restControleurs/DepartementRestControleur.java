@@ -37,7 +37,7 @@ public class DepartementRestControleur {
     }
 
     @GetMapping("/recherche/nom/{nom}")
-    public ResponseEntity<Departement> getDepartementByNom(@RequestParam String nom) {
+    public ResponseEntity<Departement> getDepartementByNom(@PathVariable String nom) {
         Departement departement = departementService.extractDepartementParNom(nom);
         if (departement == null) {
             return ResponseEntity.notFound().build();
@@ -51,11 +51,9 @@ public class DepartementRestControleur {
             String errorMessage = result.getAllErrors().stream().map(ObjectError::getDefaultMessage).collect(Collectors.joining(", "));
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Erreur de validation : " + errorMessage);
         }
-
         if (departementService.extractDepartementParNom(nouveauDepartement.getNom()) != null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("La département existe déjà.");
         }
-
         departementService.insertDepartement(nouveauDepartement);
         return ResponseEntity.ok("Département ajouté avec succès.");
     }
@@ -66,12 +64,10 @@ public class DepartementRestControleur {
             String errorMessage = result.getAllErrors().stream().map(ObjectError::getDefaultMessage).collect(Collectors.joining(", "));
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Erreur de validation : " + errorMessage);
         }
-
         Departement departementExistant = departementService.extractDepartementParId(id);
         if (departementExistant == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Département non trouvée.");
         }
-
         departementService.modifierDepartement(id, departementModifie);
         return ResponseEntity.ok("Département modifié avec succès.");
     }
@@ -98,7 +94,6 @@ public class DepartementRestControleur {
         if (departement == null) {
             return ResponseEntity.notFound().build();
         }
-
         List<Ville> villes = departementService.extractVillesEntreParDepartement(id, min, max);
         return ResponseEntity.ok(villes);
     }

@@ -9,12 +9,14 @@ import org.springframework.stereotype.Component;
 public class DepartementMapper {
 
     public DepartementDto toDto(Departement departement) {
-        DepartementDto departementDto = new DepartementDto();
-        departementDto.setCodeDepartement(departement.getCode());
-        departementDto.setNomDepartement(departement.getNom());
-        int totalHabitants = departement.getVilles().stream().mapToInt(Ville::getNbHabitants).sum();
-        departementDto.setNbHabitants(totalHabitants);
-        return departementDto;
+        if (departement == null) {
+            return null;
+        }
+
+        // CORRECT ??? ou nan ?
+        int totalHabitants = departement.getVilles() != null ? departement.getVilles().stream().mapToInt(Ville::getNbHabitants).sum() : 0;
+
+        return new DepartementDto(departement.getCode(),departement.getNom(),totalHabitants);
     }
 
     public Departement toEntity(DepartementDto departementDto) {
