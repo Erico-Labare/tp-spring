@@ -22,13 +22,14 @@ public class VilleRestControleur {
     private VilleService villeService;
 
     @GetMapping("/recherche/all")
-    public List<Ville> getVilles() {
-        return villeService.extractAllVilles();
+    public ResponseEntity<List<Ville>> getVilles() {
+        List<Ville> villes = villeService.extractAllVilles();
+        return ResponseEntity.ok(villes);
     }
 
-    @GetMapping("/recherche")
+    @GetMapping("/recherche/page")
     public ResponseEntity<Page<Ville>> getAllVilles(@RequestParam int page, @RequestParam int size) {
-        Page<Ville> villes = villeService.getAllVilles(page, size);
+        Page<Ville> villes = villeService.extractAllVillesPage(page, size);
         return ResponseEntity.ok(villes);
     }
 
@@ -82,43 +83,44 @@ public class VilleRestControleur {
     }
 
     @DeleteMapping("/{id}")
-    public List<Ville> supprimerVille(@PathVariable int id) {
-        return villeService.supprimerVille(id);
+    public ResponseEntity<Void> supprimerVille(@PathVariable int id) {
+        villeService.supprimerVille(id);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/recherche/prefix")
-    public ResponseEntity<List<Ville>> rechercherParPrefixe(@RequestParam String prefix) {
-        List<Ville> villes = villeService.rechercherVillesParPrefixe(prefix);
+    public ResponseEntity<List<Ville>> getParPrefixe(@RequestParam String prefix) {
+        List<Ville> villes = villeService.extractVillesParPrefixe(prefix);
         return ResponseEntity.ok(villes);
     }
 
     @GetMapping("/recherche/population/supA")
-    public ResponseEntity<List<Ville>> populationSuperieureA(@RequestParam int min) {
-        List<Ville> villes = villeService.rechercherVillesPopulationSup1(min);
+    public ResponseEntity<List<Ville>> getPopulationSuperieureA(@RequestParam int min) {
+        List<Ville> villes = villeService.extractVillesPopulationSup1(min);
         return ResponseEntity.ok(villes);
     }
 
     @GetMapping("/recherche/population/entre")
-    public ResponseEntity<List<Ville>> populationEntre(@RequestParam int min, @RequestParam int max) {
-        List<Ville> villes = villeService.rechercherVillesPopulationEntre(min, max);
+    public ResponseEntity<List<Ville>> getPopulationEntre(@RequestParam int min, @RequestParam int max) {
+        List<Ville> villes = villeService.extractVillesPopulationEntre(min, max);
         return ResponseEntity.ok(villes);
     }
 
     @GetMapping("/recherche/departement/{id}/population/supA")
-    public ResponseEntity<List<Ville>> populationSupAParDepartement(@PathVariable int id, @RequestParam int min) {
-        List<Ville> villes = villeService.villesDepartementPopulationSupA(id, min);
+    public ResponseEntity<List<Ville>> getPopulationSupAParDepartement(@PathVariable int id, @RequestParam int min) {
+        List<Ville> villes = villeService.extractVillesDepartementPopulationSupA(id, min);
         return ResponseEntity.ok(villes);
     }
 
     @GetMapping("/recherche/departement/{id}/population/entre")
-    public ResponseEntity<List<Ville>> populationEntreParDepartement(@PathVariable int id, @RequestParam int min, @RequestParam int max) {
-        List<Ville> villes = villeService.villesDepartementPopulationEntre(id, min, max);
+    public ResponseEntity<List<Ville>> getPopulationEntreParDepartement(@PathVariable int id, @RequestParam int min, @RequestParam int max) {
+        List<Ville> villes = villeService.extractVillesDepartementPopulationEntre(id, min, max);
         return ResponseEntity.ok(villes);
     }
 
     @GetMapping("/recherche/departement/{id}/top")
-    public ResponseEntity<List<Ville>> topNVilles(@PathVariable int id, @RequestParam int n) {
-        List<Ville> villes = villeService.topNVillesDepartement(id, n);
+    public ResponseEntity<List<Ville>> getTopNVilles(@PathVariable int id, @RequestParam int n) {
+        List<Ville> villes = villeService.extractTopNVillesDepartement(id, n);
         return ResponseEntity.ok(villes);
     }
 }

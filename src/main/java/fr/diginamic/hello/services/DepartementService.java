@@ -1,7 +1,5 @@
 package fr.diginamic.hello.services;
 
-import fr.diginamic.hello.dao.DepartementDao;
-import fr.diginamic.hello.dao.VilleDao;
 import fr.diginamic.hello.entities.Departement;
 import fr.diginamic.hello.entities.Ville;
 import fr.diginamic.hello.repository.DepartementRepository;
@@ -12,12 +10,6 @@ import java.util.List;
 
 @Service
 public class DepartementService {
-
-    @Autowired
-    private DepartementDao departementDao;
-
-    @Autowired
-    private VilleDao villeDao;
 
     @Autowired
     private DepartementRepository departementRepository;
@@ -47,16 +39,15 @@ public class DepartementService {
         }
     }
 
-    public List<Departement> supprimerDepartement(int id) {
+    public void supprimerDepartement(int id) {
         departementRepository.deleteById(id);
-        return departementRepository.findAll();
     }
 
-    public List<Ville> getTopNVillesByPopulation(Departement departement, int n) {
-        return departement.getVilles().stream().sorted((v1, v2) -> Integer.compare(v2.getNbHabitants(), v1.getNbHabitants())).limit(n).toList();
+    public List<Ville> extractTopNVillesParDepartement(int departementId, int n) {
+        return departementRepository.findTopNVillesByDepartement(departementId, n);
     }
 
-    public List<Ville> getVillesParPopulation(Departement departement, int min, int max) {
-        return departement.getVilles().stream().filter(ville -> ville.getNbHabitants() >= min && ville.getNbHabitants() <= max).toList();
+    public List<Ville> extractVillesEntreParDepartement(int departementId, int min, int max) {
+        return departementRepository.findVillesByPopulationRangeAndDepartement(departementId, min, max);
     }
 }

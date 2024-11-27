@@ -21,14 +21,24 @@ public class DepartementRestControleur {
     @Autowired
     private DepartementService departementService;
 
-    @GetMapping
-    public List<Departement> getDepartements() {
-        return departementService.extractAllDepartements();
+    @GetMapping("/recherche/all")
+    public ResponseEntity<List<Departement>> getDepartements() {
+        List<Departement> departements = departementService.extractAllDepartements();
+        return ResponseEntity.ok(departements);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/recherche/{id}")
     public ResponseEntity<Departement> getDepartementParId(@PathVariable int id) {
         Departement departement = departementService.extractDepartementParId(id);
+        if (departement == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(departement);
+    }
+
+    @GetMapping("/recherche/nom/{nom}")
+    public ResponseEntity<Departement> getDepartementByNom(@RequestParam String nom) {
+        Departement departement = departementService.extractDepartementParNom(nom);
         if (departement == null) {
             return ResponseEntity.notFound().build();
         }
@@ -67,28 +77,29 @@ public class DepartementRestControleur {
     }
 
     @DeleteMapping("/{id}")
-    public List<Departement> supprimerDepartement(@PathVariable int id) {
-        return departementService.supprimerDepartement(id);
+    public ResponseEntity<Void> supprimerDepartement(@PathVariable int id) {
+        departementService.supprimerDepartement(id);
+        return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/{id}/villes/top/{n}")
+    @GetMapping("/recherche/{id}/villes/top/{n}")
     public ResponseEntity<List<Ville>> getTopNVilles(@PathVariable int id, @PathVariable int n) {
         Departement departement = departementService.extractDepartementParId(id);
         if (departement == null) {
             return ResponseEntity.notFound().build();
         }
-        List<Ville> topVilles = departementService.getTopNVillesByPopulation(departement, n);
+        List<Ville> topVilles = departementService.extractTopNVillesParDepartement(id, n);
         return ResponseEntity.ok(topVilles);
     }
 
-    @GetMapping("/{id}/villes/population")
+    @GetMapping("/recherche/{id}/villes/population")
     public ResponseEntity<List<Ville>> getVillesParPopulation(@PathVariable int id, @RequestParam int min, @RequestParam int max) {
         Departement departement = departementService.extractDepartementParId(id);
         if (departement == null) {
             return ResponseEntity.notFound().build();
         }
 
-        List<Ville> villes = departementService.getVillesParPopulation(departement, min, max);
+        List<Ville> villes = departementService.extractVillesEntreParDepartement(id, min, max);
         return ResponseEntity.ok(villes);
     }
 }
