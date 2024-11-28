@@ -2,6 +2,7 @@ package fr.diginamic.hello.restControleurs;
 
 import fr.diginamic.hello.dto.VilleDto;
 import fr.diginamic.hello.entities.Ville;
+import fr.diginamic.hello.exception.ControlerAdvice;
 import fr.diginamic.hello.mapper.VilleMapper;
 import fr.diginamic.hello.services.VilleService;
 import jakarta.validation.Valid;
@@ -18,7 +19,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/villes")
-public class VilleRestControleur {
+public class VilleRestControleur extends ControlerAdvice {
 
     @Autowired
     private VilleService villeService;
