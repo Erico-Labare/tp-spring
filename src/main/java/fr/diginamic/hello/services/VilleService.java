@@ -1,7 +1,9 @@
 package fr.diginamic.hello.services;
 
+import fr.diginamic.hello.dto.VilleDto;
 import fr.diginamic.hello.entities.Departement;
 import fr.diginamic.hello.entities.Ville;
+import fr.diginamic.hello.exception.FunctionalException;
 import fr.diginamic.hello.repository.DepartementRepository;
 import fr.diginamic.hello.repository.VilleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -104,5 +106,17 @@ public class VilleService {
     public List<Ville> extractTopNVillesDepartement(int departementId, int n) {
         Pageable pageable = PageRequest.of(0, n);
         return villeRepository.findTopNByDepartementIdOrderByNbHabitantsDesc(departementId, pageable);
+    }
+
+    public void validateVille(VilleDto villeDto) throws FunctionalException {
+        if (villeDto.getNbHabitants() < 10) {
+            throw new FunctionalException("La ville doit avoir au moins 10 habitants.");
+        }
+        if (villeDto.getNomVille() == null || villeDto.getNomVille().length() < 2) {
+            throw new FunctionalException("Le nom de la ville doit contenir au moins 2 lettres.");
+        }
+        if (villeDto.getCodeDepartement() == null || villeDto.getCodeDepartement().length() != 2) {
+            throw new FunctionalException("Le code département doit contenir exactement 2 caractères.");
+        }
     }
 }

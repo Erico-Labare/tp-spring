@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 public abstract class ControlerAdvice {
 
     @ExceptionHandler(FunctionalException.class)
-    public ResponseEntity<String> traiterFontionnelleException(FunctionalException ex) {
+    public ResponseEntity<String> traiterFunctionalException(FunctionalException ex) {
         return ResponseEntity.badRequest().body("* "+ex.getMessage());
     }
 }

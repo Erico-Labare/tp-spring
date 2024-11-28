@@ -3,8 +3,14 @@ package fr.diginamic.hello.restControleurs;
 import fr.diginamic.hello.dto.VilleDto;
 import fr.diginamic.hello.entities.Ville;
 import fr.diginamic.hello.exception.ControlerAdvice;
+import fr.diginamic.hello.exception.FunctionalException;
 import fr.diginamic.hello.mapper.VilleMapper;
 import fr.diginamic.hello.services.VilleService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -61,27 +67,42 @@ public class VilleRestControleur extends ControlerAdvice {
         return ResponseEntity.ok(villeDto);
     }
 
+    @Operation(summary = "Création d'une nouvelle ville", description = "Ajoute une nouvelle ville à la base de données.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "Ville ajoutée avec succès.",
+                    content = { @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = String.class)) }),
+            @ApiResponse(responseCode = "400",
+                    description = "Erreur de validation ou règle métier non respectée.",
+                    content = @Content)
+    })
     @PostMapping
-    public ResponseEntity<String> ajouterVille(@Valid @RequestBody VilleDto  nouvelleVilleDto, BindingResult result) {
+    public ResponseEntity<String> ajouterVille(@Valid @RequestBody VilleDto  nouvelleVilleDto, BindingResult result) throws FunctionalException {
         if (result.hasErrors()) {
             String errorMessage = result.getAllErrors().stream().map(ObjectError::getDefaultMessage).collect(Collectors.joining(", "));
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Erreur de validation : " + errorMessage);
+            throw new FunctionalException("Erreur de validation : " + errorMessage);
         }
+
+        villeService.validateVille(nouvelleVilleDto);
 
         Ville nouvelleVille = villeMapper.toEntity(nouvelleVilleDto);
         if (villeService.extractVilleParNom(nouvelleVille.getNom()) != null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("La ville existe déjà.");
+            throw new FunctionalException("La ville existe déjà.");
         }
         villeService.insertVille(nouvelleVille);
         return ResponseEntity.ok("Ville ajoutée avec succès.");
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<String> modifierVille(@PathVariable int id, @Valid @RequestBody VilleDto villeModifieeDto, BindingResult result) {
+    public ResponseEntity<String> modifierVille(@PathVariable int id, @Valid @RequestBody VilleDto villeModifieeDto, BindingResult result) throws FunctionalException {
         if (result.hasErrors()) {
             String errorMessage = result.getAllErrors().stream().map(ObjectError::getDefaultMessage).collect(Collectors.joining(", "));
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Erreur de validation : " + errorMessage);
+            throw new FunctionalException("Erreur de validation : " + errorMessage);
         }
+
+        villeService.validateVille(villeModifieeDto);
+
         Ville villeExistante = villeService.extractVilleParId(id);
         if (villeExistante == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Ville non trouvée.");
@@ -98,43 +119,61 @@ public class VilleRestControleur extends ControlerAdvice {
     }
 
     @GetMapping("/recherche/prefix")
-    public ResponseEntity<List<VilleDto>> getParPrefixe(@RequestParam String prefix) {
+    public ResponseEntity<List<VilleDto>> getParPrefixe(@RequestParam String prefix) throws FunctionalException {
         List<Ville> villes = villeService.extractVillesParPrefixe(prefix);
+        if (villes.isEmpty()) {
+            throw new FunctionalException("Aucune ville dont le nom commence par " + prefix + " n’a été trouvée.");
+        }
         List<VilleDto> villesDto = villes.stream().map(villeMapper::toDto).toList();
         return ResponseEntity.ok(villesDto);
     }
 
     @GetMapping("/recherche/population/supA")
-    public ResponseEntity<List<VilleDto>> getPopulationSuperieureA(@RequestParam int min) {
+    public ResponseEntity<List<VilleDto>> getPopulationSuperieureA(@RequestParam int min) throws FunctionalException {
         List<Ville> villes = villeService.extractVillesPopulationSup1(min);
+        if (villes.isEmpty()) {
+            throw new FunctionalException("Aucune ville n’a une population supérieure à " + min + ".");
+        }
         List<VilleDto> villesDto = villes.stream().map(villeMapper::toDto).toList();
         return ResponseEntity.ok(villesDto);
     }
 
     @GetMapping("/recherche/population/entre")
-    public ResponseEntity<List<VilleDto>> getPopulationEntre(@RequestParam int min, @RequestParam int max) {
+    public ResponseEntity<List<VilleDto>> getPopulationEntre(@RequestParam int min, @RequestParam int max) throws FunctionalException {
         List<Ville> villes = villeService.extractVillesPopulationEntre(min, max);
+        if (villes.isEmpty()) {
+            throw new FunctionalException("Aucune ville n’a une population comprise entre " + min + " et " + max + ".");
+        }
         List<VilleDto> villesDto = villes.stream().map(villeMapper::toDto).toList();
         return ResponseEntity.ok(villesDto);
     }
 
     @GetMapping("/recherche/departement/{id}/population/supA")
-    public ResponseEntity<List<VilleDto>> getPopulationSupAParDepartement(@PathVariable int id, @RequestParam int min) {
+    public ResponseEntity<List<VilleDto>> getPopulationSupAParDepartement(@PathVariable int id, @RequestParam int min) throws FunctionalException {
         List<Ville> villes = villeService.extractVillesDepartementPopulationSupA(id, min);
+        if (villes.isEmpty()) {
+            throw new FunctionalException("Aucune ville n’a une population supérieure à " + min + ".");
+        }
         List<VilleDto> villesDto = villes.stream().map(villeMapper::toDto).toList();
         return ResponseEntity.ok(villesDto);
     }
 
     @GetMapping("/recherche/departement/{id}/population/entre")
-    public ResponseEntity<List<VilleDto>> getPopulationEntreParDepartement(@PathVariable int id, @RequestParam int min, @RequestParam int max) {
+    public ResponseEntity<List<VilleDto>> getPopulationEntreParDepartement(@PathVariable int id, @RequestParam int min, @RequestParam int max) throws FunctionalException {
         List<Ville> villes = villeService.extractVillesDepartementPopulationEntre(id, min, max);
+        if (villes.isEmpty()) {
+            throw new FunctionalException("Aucune ville n’a une population comprise entre " + min + " et " + max + ".");
+        }
         List<VilleDto> villesDto = villes.stream().map(villeMapper::toDto).toList();
         return ResponseEntity.ok(villesDto);
     }
 
     @GetMapping("/recherche/departement/{id}/top")
-    public ResponseEntity<List<VilleDto>> getTopNVilles(@PathVariable int id, @RequestParam int n) {
+    public ResponseEntity<List<VilleDto>> getTopNVilles(@PathVariable int id, @RequestParam int n) throws FunctionalException {
         List<Ville> villes = villeService.extractTopNVillesDepartement(id, n);
+        if (villes.isEmpty()) {
+            throw new FunctionalException("Aucune ville trouvée pour le département.");
+        }
         List<VilleDto> villesDto = villes.stream().map(villeMapper::toDto).toList();
         return ResponseEntity.ok(villesDto);
     }

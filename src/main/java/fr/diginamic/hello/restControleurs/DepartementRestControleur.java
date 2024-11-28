@@ -4,6 +4,7 @@ import fr.diginamic.hello.dto.DepartementDto;
 import fr.diginamic.hello.dto.VilleDto;
 import fr.diginamic.hello.entities.Departement;
 import fr.diginamic.hello.entities.Ville;
+import fr.diginamic.hello.exception.FunctionalException;
 import fr.diginamic.hello.mapper.DepartementMapper;
 import fr.diginamic.hello.mapper.VilleMapper;
 import fr.diginamic.hello.services.DepartementService;
@@ -57,26 +58,33 @@ public class DepartementRestControleur {
         return ResponseEntity.ok(departementDto);
     }
 
+
     @PostMapping
-    public ResponseEntity<String> ajouterDepartement(@Valid @RequestBody DepartementDto nouveauDepartementDto, BindingResult result) {
+    public ResponseEntity<String> ajouterDepartement(@Valid @RequestBody DepartementDto nouveauDepartementDto, BindingResult result) throws FunctionalException {
         if (result.hasErrors()) {
             String errorMessage = result.getAllErrors().stream().map(ObjectError::getDefaultMessage).collect(Collectors.joining(", "));
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Erreur de validation : " + errorMessage);
         }
+
+        departementService.validateDepartement(nouveauDepartementDto);
+
         Departement nouveauDepartement = departementMapper.toEntity(nouveauDepartementDto);
         if (departementService.extractDepartementParNom(nouveauDepartement.getNom()) != null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("La département existe déjà.");
+            throw new FunctionalException("La département existe déjà.");
         }
         departementService.insertDepartement(nouveauDepartement);
         return ResponseEntity.ok("Département ajouté avec succès.");
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<String> modifierDepartement(@PathVariable int id, @Valid @RequestBody DepartementDto departementModifieDto, BindingResult result) {
+    public ResponseEntity<String> modifierDepartement(@PathVariable int id, @Valid @RequestBody DepartementDto departementModifieDto, BindingResult result) throws FunctionalException {
         if (result.hasErrors()) {
             String errorMessage = result.getAllErrors().stream().map(ObjectError::getDefaultMessage).collect(Collectors.joining(", "));
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Erreur de validation : " + errorMessage);
+            throw new FunctionalException("Erreur de validation : " + errorMessage);
         }
+
+        departementService.validateDepartement(departementModifieDto);
+
         Departement departementExistant = departementService.extractDepartementParId(id);
         if (departementExistant == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Département non trouvée.");

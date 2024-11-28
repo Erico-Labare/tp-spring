@@ -1,7 +1,9 @@
 package fr.diginamic.hello.services;
 
+import fr.diginamic.hello.dto.DepartementDto;
 import fr.diginamic.hello.entities.Departement;
 import fr.diginamic.hello.entities.Ville;
+import fr.diginamic.hello.exception.FunctionalException;
 import fr.diginamic.hello.repository.DepartementRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -10,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class DepartementService {
@@ -61,5 +64,18 @@ public class DepartementService {
     @Transactional
     public List<Ville> extractVillesEntreParDepartement(int departementId, int min, int max) {
         return departementRepository.findVillesByPopulationRangeAndDepartement(departementId, min, max);
+    }
+
+    public void validateDepartement(DepartementDto departementDto) throws FunctionalException {
+        if (departementDto.getCodeDepartement() == null || departementDto.getCodeDepartement().length() < 2 || departementDto.getCodeDepartement().length() > 3) {
+            throw new FunctionalException("Le code département doit contenir entre 2 et 3 caractères.");
+        }
+        if (departementDto.getNomDepartement() == null || departementDto.getNomDepartement().length() < 3) {
+            throw new FunctionalException("Le nom du département est obligatoire et doit contenir au moins 3 lettres.");
+        }
+        Optional<Departement> existingDepartement = departementRepository.findByCode(departementDto.getCodeDepartement());
+        if (existingDepartement.isPresent()) {
+            throw new FunctionalException("Un département avec ce code existe déjà.");
+        }
     }
 }
