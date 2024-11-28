@@ -15,7 +15,7 @@ public class Ville {
     @Column(name = "ID")
     private int id;
 
-    @NotBlank
+//    @NotBlank
     @Size(min = 2)
     @Column(name = "NOM")
     private String nom;

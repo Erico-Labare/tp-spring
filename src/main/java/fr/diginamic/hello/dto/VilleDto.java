@@ -3,17 +3,27 @@ package fr.diginamic.hello.dto;
 public class VilleDto {
 
     private int codeVille;
+    private String nomVille;
     private int nbHabitants;
     private String codeDepartement;
     private String nomDepartement;
 
-    public VilleDto(int codeVille, int nbHabitants, String codeDepartement, String nomDepartement) {
+    public VilleDto(int codeVille, String nomVille, int nbHabitants, String codeDepartement, String nomDepartement) {
         this.codeVille = codeVille;
+        this.nomVille = nomVille;
         this.nbHabitants = nbHabitants;
         this.codeDepartement = codeDepartement;
         this.nomDepartement = nomDepartement;
     }
 
+
+    public String getNomVille() {
+        return nomVille;
+    }
+
+    public void setNomVille(String nomVille) {
+        this.nomVille = nomVille;
+    }
 
     public int getCodeVille() {
         return codeVille;

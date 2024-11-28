@@ -1,7 +1,11 @@
 package fr.diginamic.hello.restControleurs;
 
+import fr.diginamic.hello.dto.DepartementDto;
+import fr.diginamic.hello.dto.VilleDto;
 import fr.diginamic.hello.entities.Departement;
 import fr.diginamic.hello.entities.Ville;
+import fr.diginamic.hello.mapper.DepartementMapper;
+import fr.diginamic.hello.mapper.VilleMapper;
 import fr.diginamic.hello.services.DepartementService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,36 +25,45 @@ public class DepartementRestControleur {
     @Autowired
     private DepartementService departementService;
 
+    @Autowired
+    private DepartementMapper departementMapper;
+    @Autowired
+    private VilleMapper villeMapper;
+
     @GetMapping("/recherche/all")
-    public ResponseEntity<List<Departement>> getDepartements() {
+    public ResponseEntity<List<DepartementDto>> getDepartements() {
         List<Departement> departements = departementService.extractAllDepartements();
-        return ResponseEntity.ok(departements);
+        List<DepartementDto> departementsDto = departements.stream().map(departementMapper::toDto).toList();
+        return ResponseEntity.ok(departementsDto);
     }
 
     @GetMapping("/recherche/{id}")
-    public ResponseEntity<Departement> getDepartementParId(@PathVariable int id) {
+    public ResponseEntity<DepartementDto> getDepartementParId(@PathVariable int id) {
         Departement departement = departementService.extractDepartementParId(id);
         if (departement == null) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(departement);
+        DepartementDto departementDto = departementMapper.toDto(departement);
+        return ResponseEntity.ok(departementDto);
     }
 
     @GetMapping("/recherche/nom/{nom}")
-    public ResponseEntity<Departement> getDepartementByNom(@PathVariable String nom) {
+    public ResponseEntity<DepartementDto> getDepartementByNom(@PathVariable String nom) {
         Departement departement = departementService.extractDepartementParNom(nom);
         if (departement == null) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(departement);
+        DepartementDto departementDto = departementMapper.toDto(departement);
+        return ResponseEntity.ok(departementDto);
     }
 
     @PostMapping
-    public ResponseEntity<String> ajouterDepartement(@Valid @RequestBody Departement nouveauDepartement, BindingResult result) {
+    public ResponseEntity<String> ajouterDepartement(@Valid @RequestBody DepartementDto nouveauDepartementDto, BindingResult result) {
         if (result.hasErrors()) {
             String errorMessage = result.getAllErrors().stream().map(ObjectError::getDefaultMessage).collect(Collectors.joining(", "));
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Erreur de validation : " + errorMessage);
         }
+        Departement nouveauDepartement = departementMapper.toEntity(nouveauDepartementDto);
         if (departementService.extractDepartementParNom(nouveauDepartement.getNom()) != null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("La département existe déjà.");
         }
@@ -59,7 +72,7 @@ public class DepartementRestControleur {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<String> modifierDepartement(@PathVariable int id, @Valid @RequestBody Departement departementModifie, BindingResult result) {
+    public ResponseEntity<String> modifierDepartement(@PathVariable int id, @Valid @RequestBody DepartementDto departementModifieDto, BindingResult result) {
         if (result.hasErrors()) {
             String errorMessage = result.getAllErrors().stream().map(ObjectError::getDefaultMessage).collect(Collectors.joining(", "));
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Erreur de validation : " + errorMessage);
@@ -68,6 +81,7 @@ public class DepartementRestControleur {
         if (departementExistant == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Département non trouvée.");
         }
+        Departement departementModifie=departementMapper.toEntity(departementModifieDto);
         departementService.modifierDepartement(id, departementModifie);
         return ResponseEntity.ok("Département modifié avec succès.");
     }
@@ -79,22 +93,24 @@ public class DepartementRestControleur {
     }
 
     @GetMapping("/recherche/{id}/villes/top/{n}")
-    public ResponseEntity<List<Ville>> getTopNVilles(@PathVariable int id, @PathVariable int n) {
+    public ResponseEntity<List<VilleDto>> getTopNVilles(@PathVariable int id, @PathVariable int n) {
         Departement departement = departementService.extractDepartementParId(id);
         if (departement == null) {
             return ResponseEntity.notFound().build();
         }
         List<Ville> topVilles = departementService.extractTopNVillesParDepartement(id, n);
-        return ResponseEntity.ok(topVilles);
+        List<VilleDto> topVillesDto = topVilles.stream().map(villeMapper::toDto).toList();
+        return ResponseEntity.ok(topVillesDto);
     }
 
     @GetMapping("/recherche/{id}/villes/population")
-    public ResponseEntity<List<Ville>> getVillesParPopulation(@PathVariable int id, @RequestParam int min, @RequestParam int max) {
+    public ResponseEntity<List<VilleDto>> getVillesParPopulation(@PathVariable int id, @RequestParam int min, @RequestParam int max) {
         Departement departement = departementService.extractDepartementParId(id);
         if (departement == null) {
             return ResponseEntity.notFound().build();
         }
         List<Ville> villes = departementService.extractVillesEntreParDepartement(id, min, max);
-        return ResponseEntity.ok(villes);
+        List<VilleDto> villesDto = villes.stream().map(villeMapper::toDto).toList();
+        return ResponseEntity.ok(villesDto);
     }
 }

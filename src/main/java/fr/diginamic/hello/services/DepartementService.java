@@ -4,6 +4,8 @@ import fr.diginamic.hello.entities.Departement;
 import fr.diginamic.hello.entities.Ville;
 import fr.diginamic.hello.repository.DepartementRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,8 +41,8 @@ public class DepartementService {
     public void modifierDepartement(int id, Departement departementModifie) {
         Departement departement = departementRepository.findById(id).orElse(null);
         if (departement != null) {
+            departement.setCode(departementModifie.getCode());
             departement.setNom(departementModifie.getNom());
-            departement.setVilles(departementModifie.getVilles());
             departementRepository.save(departement);
         }
     }
@@ -52,7 +54,8 @@ public class DepartementService {
 
     @Transactional
     public List<Ville> extractTopNVillesParDepartement(int departementId, int n) {
-        return departementRepository.findTopNVillesByDepartement(departementId, n);
+        Pageable pageable = PageRequest.of(0, n);
+        return departementRepository.findTopNVillesByDepartement(departementId, pageable);
     }
 
     @Transactional

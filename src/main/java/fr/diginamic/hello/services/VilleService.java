@@ -1,6 +1,8 @@
 package fr.diginamic.hello.services;
 
+import fr.diginamic.hello.entities.Departement;
 import fr.diginamic.hello.entities.Ville;
+import fr.diginamic.hello.repository.DepartementRepository;
 import fr.diginamic.hello.repository.VilleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -10,12 +12,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class VilleService {
 
     @Autowired
     private VilleRepository villeRepository;
+
+    @Autowired
+    private DepartementRepository departementRepository;
 
     @Transactional
     public List<Ville> extractAllVilles() {
@@ -40,7 +46,12 @@ public class VilleService {
 
     @Transactional
     public void insertVille(Ville ville) {
-        villeRepository.save(ville);
+        Optional<Departement> optionalDepartement = departementRepository.findByCode(ville.getDepartement().getCode());
+        if (optionalDepartement.isPresent()) {
+            ville.setDepartement(optionalDepartement.get());
+            villeRepository.save(ville);
+        }
+
     }
 
     @Transactional
@@ -49,10 +60,13 @@ public class VilleService {
         if (villeExistante != null) {
             villeExistante.setNom(villeModifiee.getNom());
             villeExistante.setNbHabitants(villeModifiee.getNbHabitants());
-            if (villeModifiee.getDepartement() != null) {
-                villeExistante.setDepartement(villeModifiee.getDepartement());
+
+            Optional<Departement> optionalDepartement = departementRepository.findById(villeModifiee.getDepartement().getId());
+            if (optionalDepartement.isPresent()) {
+                villeExistante.setDepartement(optionalDepartement.get());
+                villeRepository.save(villeExistante);
             }
-            villeRepository.save(villeExistante);
+
         }
     }
 
