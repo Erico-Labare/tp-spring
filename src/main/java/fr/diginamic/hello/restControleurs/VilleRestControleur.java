@@ -1,16 +1,19 @@
 package fr.diginamic.hello.restControleurs;
 
 import fr.diginamic.hello.dto.VilleDto;
+import fr.diginamic.hello.entities.Departement;
 import fr.diginamic.hello.entities.Ville;
 import fr.diginamic.hello.exception.ControlerAdvice;
 import fr.diginamic.hello.exception.FunctionalException;
 import fr.diginamic.hello.mapper.VilleMapper;
+import fr.diginamic.hello.services.DepartementService;
 import fr.diginamic.hello.services.VilleService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -20,6 +23,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,6 +34,9 @@ public class VilleRestControleur extends ControlerAdvice {
 
     @Autowired
     private VilleService villeService;
+
+    @Autowired
+    private DepartementService departementService;
 
     @Autowired
     private VilleMapper villeMapper;
@@ -136,6 +144,36 @@ public class VilleRestControleur extends ControlerAdvice {
         }
         List<VilleDto> villesDto = villes.stream().map(villeMapper::toDto).toList();
         return ResponseEntity.ok(villesDto);
+    }
+
+    @GetMapping("/recherche/population/supAExport")
+    public ResponseEntity<String> getPopulationSuperieureAExport(@RequestParam int min, HttpServletResponse response) throws FunctionalException, IOException {
+       List<Ville> villes = villeService.extractVillesPopulationSup1(min);
+        if (villes.isEmpty()) {
+            throw new FunctionalException("Aucune ville n’a une population supérieure à " + min + ".");
+        }
+        List<VilleDto> villesDto = villes.stream().map(villeMapper::toDto).toList();
+
+        response.setContentType("text/csv");
+        response.setHeader("Content-Disposition", "attachment; filename=\"villes.csv\"");
+
+        PrintWriter writer = response.getWriter();
+
+        for (VilleDto villeDto : villesDto) {
+            String codeDept = villeDto.getCodeDepartement();
+            String nomDept = departementService.getNomDepartement(codeDept);
+            String csvLine = String.format("%s,%d,%s,%s",
+                    villeDto.getNomVille(),
+                    villeDto.getNbHabitants(),
+                    codeDept,
+                    nomDept);
+
+            writer.println(csvLine);
+        }
+
+        writer.flush();
+
+        return ResponseEntity.ok("CVS créer.");
     }
 
     @GetMapping("/recherche/population/entre")

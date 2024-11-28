@@ -1,5 +1,10 @@
 package fr.diginamic.hello.restControleurs;
 
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Font;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.PdfWriter;
 import fr.diginamic.hello.dto.DepartementDto;
 import fr.diginamic.hello.dto.VilleDto;
 import fr.diginamic.hello.entities.Departement;
@@ -8,6 +13,8 @@ import fr.diginamic.hello.exception.FunctionalException;
 import fr.diginamic.hello.mapper.DepartementMapper;
 import fr.diginamic.hello.mapper.VilleMapper;
 import fr.diginamic.hello.services.DepartementService;
+import fr.diginamic.hello.services.VilleService;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,6 +23,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,8 +36,12 @@ public class DepartementRestControleur {
 
     @Autowired
     private DepartementMapper departementMapper;
+
     @Autowired
     private VilleMapper villeMapper;
+
+    @Autowired
+    private VilleService villeService;
 
     @GetMapping("/recherche/all")
     public ResponseEntity<List<DepartementDto>> getDepartements() {
@@ -89,7 +101,7 @@ public class DepartementRestControleur {
         if (departementExistant == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Département non trouvée.");
         }
-        Departement departementModifie=departementMapper.toEntity(departementModifieDto);
+        Departement departementModifie = departementMapper.toEntity(departementModifieDto);
         departementService.modifierDepartement(id, departementModifie);
         return ResponseEntity.ok("Département modifié avec succès.");
     }
@@ -120,5 +132,38 @@ public class DepartementRestControleur {
         List<Ville> villes = departementService.extractVillesEntreParDepartement(id, min, max);
         List<VilleDto> villesDto = villes.stream().map(villeMapper::toDto).toList();
         return ResponseEntity.ok(villesDto);
+    }
+
+    @GetMapping("/recherche/villesExport/{codeDepartement}")
+    public ResponseEntity<String> getVilleDepartement(@PathVariable String codeDepartement, HttpServletResponse response) throws IOException, DocumentException {
+
+        response.setContentType("application/pdf");
+        response.setHeader("Content-Disposition", "attachment; filename=\"departement_" + codeDepartement + ".pdf\"");
+
+        String nomDepartement = departementService.getNomDepartement(codeDepartement);
+
+        Document document = new Document();
+        PdfWriter.getInstance(document, response.getOutputStream());
+
+        document.open();
+        document.addTitle("Export Département");
+        document.add(new Paragraph("Détails du Département", new Font(Font.FontFamily.HELVETICA, 18, Font.BOLD)));
+        document.add(new Paragraph("Nom du département : " + nomDepartement));
+        document.add(new Paragraph("Code du département : " + codeDepartement));
+        document.add(new Paragraph("\n"));
+
+        document.add(new Paragraph("Liste des villes du département :", new Font(Font.FontFamily.HELVETICA, 14, Font.BOLD)));
+        List<Ville> villes = departementService.extractVillesParDepartement(codeDepartement);
+        if (villes.isEmpty()) {
+            document.add(new Paragraph("Aucune ville trouvée pour ce département."));
+        } else {
+            for (Ville ville : villes) {
+                document.add(new Paragraph("- " + ville.getNom() + " (Population : " + ville.getPopulation() + ")"));
+            }
+        }
+
+        document.close();
+
+        return ResponseEntity.ok("PDF créer.");
     }
 }

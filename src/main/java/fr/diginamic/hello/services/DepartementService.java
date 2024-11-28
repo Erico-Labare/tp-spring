@@ -10,8 +10,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestClient;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -19,6 +21,9 @@ public class DepartementService {
 
     @Autowired
     private DepartementRepository departementRepository;
+
+    @Autowired
+    private RestClient restClient;
 
     @Transactional
     public List<Departement> extractAllDepartements() {
@@ -78,4 +83,11 @@ public class DepartementService {
             throw new FunctionalException("Un département avec ce code existe déjà.");
         }
     }
+
+    public String getNomDepartement(String codeDepartement) {
+        String url = "https://geo.api.gouv.fr/departements/" + codeDepartement + "?fields=nom,code,codeRegion";
+        Map<String, Object> response = restClient.get().uri(url).retrieve().body(Map.class);
+        return response != null && response.containsKey("nom") ? (String) response.get("nom") : "Inconnu";
+    }
 }
+
