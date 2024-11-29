@@ -5,6 +5,7 @@ import fr.diginamic.hello.entities.Departement;
 import fr.diginamic.hello.entities.Ville;
 import fr.diginamic.hello.exception.FunctionalException;
 import fr.diginamic.hello.repository.DepartementRepository;
+import fr.diginamic.hello.repository.VilleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -21,6 +22,9 @@ public class DepartementService {
 
     @Autowired
     private DepartementRepository departementRepository;
+
+    @Autowired
+    private VilleRepository villeRepository;
 
     @Autowired
     private RestClient restClient;
@@ -58,6 +62,10 @@ public class DepartementService {
     @Transactional
     public void supprimerDepartement(int id) {
         departementRepository.deleteById(id);
+    }
+
+    public List<Ville> extractVillesParDepartement(String codeDepartement) {
+        return villeRepository.findByDepartementCode(codeDepartement);
     }
 
     @Transactional

@@ -14,6 +14,8 @@ public interface VilleRepository extends JpaRepository<Ville, Integer> {
 
     List<Ville> findByNomStartingWith(String prefix);
 
+    List<Ville> findByDepartementCode(String code);
+
     List<Ville> findByNbHabitantsGreaterThan(int min);
 
     List<Ville> findByNbHabitantsBetween(int min, int max);

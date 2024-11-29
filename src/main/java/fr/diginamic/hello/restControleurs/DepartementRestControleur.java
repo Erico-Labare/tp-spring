@@ -158,7 +158,7 @@ public class DepartementRestControleur {
             document.add(new Paragraph("Aucune ville trouvée pour ce département."));
         } else {
             for (Ville ville : villes) {
-                document.add(new Paragraph("- " + ville.getNom() + " (Population : " + ville.getPopulation() + ")"));
+                document.add(new Paragraph("- " + ville.getNom() + " (Population : " + ville.getNbHabitants() + ")"));
             }
         }
 
