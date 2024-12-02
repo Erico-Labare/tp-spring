@@ -25,5 +25,5 @@ public interface DepartementRepository extends JpaRepository<Departement, Intege
     List<Ville> findTopNVillesByDepartement(@Param("departementId") int departementId, Pageable pageable);
 
     @Query("SELECT v FROM Ville v WHERE v.departement.id = :departementId AND v.nbHabitants BETWEEN :min AND :max")
-    List<Ville> findVillesByPopulationRangeAndDepartement(@Param("departementId") int departementId, @Param("min") int min,@Param("max") int max);
+    List<Ville> findVillesByPopulationRangeAndDepartement(@Param("departementId") int departementId, @Param("min") int min, @Param("max") int max);
 }

@@ -9,6 +9,6 @@ public abstract class ControlerAdvice {
 
     @ExceptionHandler(FunctionalException.class)
     public ResponseEntity<String> traiterFunctionalException(FunctionalException ex) {
-        return ResponseEntity.badRequest().body("* "+ex.getMessage());
+        return ResponseEntity.badRequest().body("* " + ex.getMessage());
     }
 }

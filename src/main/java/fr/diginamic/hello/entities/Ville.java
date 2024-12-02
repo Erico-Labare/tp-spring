@@ -3,7 +3,6 @@ package fr.diginamic.hello.entities;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 @Entity
@@ -15,7 +14,7 @@ public class Ville {
     @Column(name = "ID")
     private int id;
 
-//    @NotBlank
+    //    @NotBlank
     @Size(min = 2)
     @Column(name = "NOM")
     private String nom;

@@ -15,7 +15,7 @@ public class DepartementMapper {
 
         int totalHabitants = departement.getVilles() != null ? departement.getVilles().stream().mapToInt(Ville::getNbHabitants).sum() : 0;
 
-        return new DepartementDto(departement.getCode(),departement.getNom(),totalHabitants);
+        return new DepartementDto(departement.getCode(), departement.getNom(), totalHabitants);
     }
 
     public Departement toEntity(DepartementDto departementDto) {

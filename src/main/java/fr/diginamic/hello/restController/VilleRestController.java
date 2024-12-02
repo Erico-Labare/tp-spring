@@ -78,14 +78,14 @@ public class VilleRestController extends ControlerAdvice {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200",
                     description = "Ville ajoutée avec succès.",
-                    content = { @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = String.class)) }),
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation = String.class))}),
             @ApiResponse(responseCode = "400",
                     description = "Erreur de validation ou règle métier non respectée.",
                     content = @Content)
     })
     @PostMapping
-    public ResponseEntity<String> ajouterVille(@Valid @RequestBody VilleDto  nouvelleVilleDto, BindingResult result) throws FunctionalException {
+    public ResponseEntity<String> ajouterVille(@Valid @RequestBody VilleDto nouvelleVilleDto, BindingResult result) throws FunctionalException {
         if (result.hasErrors()) {
             String errorMessage = result.getAllErrors().stream().map(ObjectError::getDefaultMessage).collect(Collectors.joining(", "));
             throw new FunctionalException("Erreur de validation : " + errorMessage);
@@ -147,7 +147,7 @@ public class VilleRestController extends ControlerAdvice {
 
     @GetMapping("/recherche/population/supAExport")
     public ResponseEntity<String> getPopulationSuperieureAExport(@RequestParam int min, HttpServletResponse response) throws FunctionalException, IOException {
-       List<Ville> villes = villeService.extractVillesPopulationSup1(min);
+        List<Ville> villes = villeService.extractVillesPopulationSup1(min);
         if (villes.isEmpty()) {
             throw new FunctionalException("Aucune ville n’a une population supérieure à " + min + ".");
         }
