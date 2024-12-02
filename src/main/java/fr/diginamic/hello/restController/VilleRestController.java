@@ -1,7 +1,6 @@
-package fr.diginamic.hello.restControleurs;
+package fr.diginamic.hello.restController;
 
 import fr.diginamic.hello.dto.VilleDto;
-import fr.diginamic.hello.entities.Departement;
 import fr.diginamic.hello.entities.Ville;
 import fr.diginamic.hello.exception.ControlerAdvice;
 import fr.diginamic.hello.exception.FunctionalException;
@@ -30,7 +29,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/villes")
-public class VilleRestControleur extends ControlerAdvice {
+public class VilleRestController extends ControlerAdvice {
 
     @Autowired
     private VilleService villeService;

@@ -1,4 +1,4 @@
-package fr.diginamic.hello.restControleurs;
+package fr.diginamic.hello.restController;
 
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/departement")
-public class DepartementRestControleur {
+public class DepartementRestController {
 
     @Autowired
     private DepartementService departementService;

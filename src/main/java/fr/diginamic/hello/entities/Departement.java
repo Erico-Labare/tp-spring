@@ -27,11 +27,10 @@ public class Departement {
     public Departement() {
     }
 
-    public Departement(int id, String code, String nom, List<Ville> villes) {
+    public Departement(int id, String code, String nom) {
         this.id = id;
         this.code = code;
         this.nom = nom;
-        this.villes = villes;
     }
 
     public int getId() {
