@@ -5,5 +5,10 @@
 <body>
 <h1>Bienvenue sur l'application des villes</h1>
 <a href="/listVilles">Voir les villes</a>
+<h3>Profil utilsiateur :</h3>
+<ul>
+    <li th:text="'Username : '+${authentication.name}">Username</li>
+    <li th:text="'Authorities : '+${authentication.authorities}">Authorities</li>
+</ul>
 </body>
 </html>
